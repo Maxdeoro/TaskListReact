@@ -13,12 +13,19 @@ function App() {
     completedTasks: true,
   });
 
+  const [tasks, setTasks] = useState([]);
+
   function toggleSection(section) {
     setOpenSection((prevValue) => ({
       ...prevValue,
       [section]: !prevValue[section],
     }));
   };
+
+  function addTask(task) {
+    setTasks([...tasks, {...task, completed: false, id: Date.now()}]);
+  };
+  console.log(tasks);
 
   return (
     <div className="app">
@@ -27,7 +34,7 @@ function App() {
         <button className={`close-button ${openSection.taskList ? "open" : ""}`}
                 onClick={() => toggleSection('taskList')}
         >+</button>
-        {openSection.taskList && <TaskForm />}
+        {openSection.taskList && <TaskForm addTask={addTask}/>}
       </div>
       <div className="task-container">
         <h2>Tasks</h2>
