@@ -4,6 +4,7 @@ import { Footer } from './footer/Footer';
 import './index.css';
 import { TaskForm } from './taskForm/TaskForm';
 import { TaskList } from './taskList/TaskList';
+import { TaskItem } from './taskItem/TaskItem';
 
 function App() {
 
@@ -13,8 +14,6 @@ function App() {
     completedTasks: true,
   });
 
-  const [tasks, setTasks] = useState([]);
-
   function toggleSection(section) {
     setOpenSection((prevValue) => ({
       ...prevValue,
@@ -22,10 +21,26 @@ function App() {
     }));
   };
 
+  // add new task to array
+  const [tasks, setTasks] = useState([]);
+
   function addTask(task) {
     setTasks([...tasks, {...task, completed: false, id: Date.now()}]);
   };
   console.log(tasks);
+
+  function deleteTask(id) {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  function completeTask(id){
+    setTasks(tasks.map(task => task.id === id ? {...task, completed: true} : task));
+  };
+
+  const activeTasks = tasks.filter((task) => !task.completed);   //completed === false
+  const completedTasks = tasks.filter((task) => task.completed);
+
+  console.log(completedTasks);
 
   return (
     <div className="app">
@@ -45,14 +60,19 @@ function App() {
           <button className='sort-button'>By Date</button>
           <button className='sort-button'>By Priority</button>
         </div>
-        {openSection.tasks && <TaskList />}
+        {openSection.tasks && <TaskList activeTasks={activeTasks}
+                                        deleteTask={deleteTask}
+                                        completeTask={completeTask}
+        />}
       </div>
       <div className="completed-task-container">
         <h2>Completed Tasks</h2>
         <button className={`close-button ${openSection.completedTasks ? "open" : ""}`}
                 onClick={() => toggleSection('completedTasks')}
         >+</button>
-        {openSection.completedTasks && <CompletedTaskList />}
+        {openSection.completedTasks && <CompletedTaskList completedTasks={completedTasks}
+                                                          deleteTask={deleteTask}  
+        />}
       </div>
       <Footer />
     </div>

@@ -2,9 +2,12 @@ import { CompletedTaskItem } from '../completedTaskItem/CompletedTaskItem';
 import '../index.css';
 import { TaskItem } from '../taskItem/TaskItem';
 
-export function CompletedTaskList() {
+export function CompletedTaskList({completedTasks,deleteTask}) {
     return <ul className='completed-task-list'>
-        {/* <CompletedTaskItem /> */}
-        <TaskItem />
+        {completedTasks.map(task => <CompletedTaskItem completedTasks={completedTasks}
+                                                       key={task.id}
+                                                       task={task}
+                                                       deleteTask={deleteTask}
+        />)}
     </ul>
 };

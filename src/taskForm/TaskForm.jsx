@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import '../index.css';
 
- function TaskForm({addTask}) {
+export function TaskForm({addTask}) {
 
     const [title,setTitle] = useState('');
     const [priority, setPriority] = useState('Low');
     const [deadline, setDeadline] = useState('');
-    const [tasks, setTasks] = useState([]);
+    // const [tasks, setTasks] = useState([]);
 
 
     function handleSubmit(e) {
