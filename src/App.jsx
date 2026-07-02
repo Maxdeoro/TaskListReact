@@ -1,21 +1,56 @@
-import { useState } from 'react';
+/*Rus
+//Задача:
+//Добавьте функционал, который будет отслеживать, просрочена ли задача.
+//Для отображения просроченной задачи добавьте к задаче класс overdue.
+
+//ПОДРОБНЕЕ С ПОДСКАЗКАМИ:
+//1 — Создайте состояние, которое отслеживает текущее время.
+//2 — Создайте side effect, который будет обновлять состояние текущего времени каждую секунду.
+//3 — Передайте динамически состояние, которое отслеживает текущее время, в компонент TaskItem (если deadline < текущее время, то true).
+//4 — Добавьте элементу <li className="task-item"></li> класс overdue при условии, что deadline прошел.
+*/
+
+/*Eng
+//Task:
+//Add functionality to track whether a task is overdue.
+//To display overdue tasks, add the class "overdue" to the task.
+
+//DETAILS WITH HINTS:
+//1 — Create a state that tracks the current time.
+//2 — Create a side effect that updates the current time state every second.
+//3 — Dynamically pass the state that tracks the current time to the TaskItem component (if deadline < current time, then true).
+//4 — Add the "overdue" class to the <li className="task-item"></li> element if the deadline has passed.
+
+*/
+
+import { useState, useEffect } from 'react';
 import { CompletedTaskList } from './completedTaskList/CompletedTaskList';
 import { Footer } from './footer/Footer';
 import './index.css';
 import { TaskForm } from './taskForm/TaskForm';
 import { TaskList } from './taskList/TaskList';
-import { TaskItem } from './taskItem/TaskItem';
+// import { TaskItem } from './taskItem/TaskItem';
 
 function App() {
 
   const [sortType,setSortType] = useState('date');    // sort by type: date or priority
   const [sortOrder,setSortOrder] = useState('asc');   // sort by order: ascend or descend
+  const [currentTime,setCurrentTime] = useState(() => new Date());
+  // console.log(currentTime);
 
   const [openSection,setOpenSection] = useState({
     taskList: false,
     tasks: true,
     completedTasks: true,
   });
+
+  useEffect(() => {
+    const intervalID = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(intervalID);
+  }, []);
 
   function toggleSection(section) {
     setOpenSection((prevValue) => ({
@@ -30,7 +65,7 @@ function App() {
   function addTask(task) {
     setTasks([...tasks, {...task, completed: false, id: Date.now()}]);
   };
-  console.log(tasks);
+  // console.log(tasks);
 
   function deleteTask(id) {
     setTasks(tasks.filter(task => task.id !== id));
@@ -78,6 +113,8 @@ function App() {
     <div className="app">
       <div className="task-container">
         <h1>Task List with Priority</h1>
+        <div>Today is: {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString()}</div>
+        {/* <div>Today is: {currentTime.toLocaleTimeString()}</div> */}
         <button className={`close-button ${openSection.taskList ? "open" : ""}`}
                 onClick={() => toggleSection('taskList')}
         >+</button>
