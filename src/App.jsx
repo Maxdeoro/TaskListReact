@@ -1,144 +1,248 @@
-//Add functionality to track whether a task is overdue.
-//To display overdue tasks, add the class "overdue" to the task.
+import { createContext, useContext, useEffect, useState } from "react";
 
-
-//1 — Create a state that tracks the current time.
-//2 — Create a side effect that updates the current time state every second.
-//3 — Dynamically pass the state that tracks the current time to the TaskItem component (if deadline < current time, then true).
-//4 — Add the "overdue" class to the <li className="task-item"></li> element if the deadline has passed.
-
-
-import { useState, useEffect } from 'react';
-import { CompletedTaskList } from './completedTaskList/CompletedTaskList';
-import { Footer } from './footer/Footer';
-import './index.css';
-import { TaskForm } from './taskForm/TaskForm';
-import { TaskList } from './taskList/TaskList';
+const TaskContext = createContext();
 
 function App() {
-
-  const [sortType,setSortType] = useState('date');    // sort by type: date or priority
-  const [sortOrder,setSortOrder] = useState('asc');   // sort by order: ascend or descend
-  const [currentTime,setCurrentTime] = useState(new Date());
-  // console.log(currentTime);
-
-
-  const [openSection,setOpenSection] = useState({
+  const [tasks, setTasks] = useState([]);
+  const [sortType, setSortType] = useState("date");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [openSection, setOpenSection] = useState({
     taskList: false,
     tasks: true,
     completedTasks: true,
   });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   function toggleSection(section) {
-    setOpenSection((prevValue) => ({
-      ...prevValue,
-      [section]: !prevValue[section],
+    setOpenSection((prev) => ({
+      ...prev,
+      [section]: !prev[section],
     }));
-  };
-
-  // add new task to array
-  const [tasks, setTasks] = useState([]);
+  }
 
   function addTask(task) {
-    setTasks([...tasks, {...task, completed: false, id: Date.now()}]);
-  };
-  // console.log(tasks);
+    setTasks([...tasks, { ...task, completed: false, id: Date.now() }]);
+  }
 
   function deleteTask(id) {
-    setTasks(tasks.filter(task => task.id !== id));
-  };
+    setTasks(tasks.filter((task) => task.id !== id));
+  }
 
-  function completeTask(id){
-    setTasks(tasks.map(task => task.id === id ? {...task, completed: true} : task));
-  };
+  function completeTask(id) {
+    setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: true } : task)));
+  }
 
-
-  function sortTask(tasks){
-    return (
-      tasks.slice().sort((a,b) => {
-        if(sortType === 'priority') {
-          const priorityOrder = {
-            High: 1,
-            Medium: 2,
-            Low: 3,
-          };
-          return sortOrder === 'asc' 
-            ? priorityOrder[a.priority]-priorityOrder[b.priority]
-            : priorityOrder[b.priority]-priorityOrder[a.priority];
-        } else {
-          return sortOrder === 'asc' 
+  function sortTask(tasks) {
+    return tasks.slice().sort((a, b) => {
+      if (sortType === "priority") {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        return sortOrder === "asc"
+          ? priorityOrder[a.priority] - priorityOrder[b.priority]
+          : priorityOrder[b.priority] - priorityOrder[a.priority];
+      } else {
+        return sortOrder === "asc"
           ? new Date(a.deadline) - new Date(b.deadline)
           : new Date(b.deadline) - new Date(a.deadline);
-        }
-      })
-    );
-  };
+      }
+    });
+  }
 
   function toggleSortOrder(type) {
-    if(sortType === type) {
-      setSortType(sortOrder === 'asc' ? 'desc' : 'asc');
+    if (sortType === type) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortType(type);
-      setSortOrder('asc');
+      setSortOrder("asc");
     }
-  };
+  }
 
-  const activeTasks = sortTask(tasks.filter((task) => !task.completed));   //completed === false
-  const completedTasks = tasks.filter((task) => task.completed);
+  const activeTasks = sortTask(tasks.filter((task) => !task.completed));
+  const completedTasks = sortTask(tasks.filter((task) => task.completed));
 
   return (
-    <div className="app">
-      <div className="task-container">
-        <h1>Task List with Priority</h1>
-        <div>Today is: {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString()}</div>
-        <button className={`close-button ${openSection.taskList ? "open" : ""}`}
-                onClick={() => toggleSection('taskList')}
-        >+</button>
-        {openSection.taskList && <TaskForm addTask={addTask}/>}
-      </div>
-      <div className="task-container">
-        <h2>Tasks</h2>
-        <button className={`close-button ${openSection.tasks ? "open" : ""}`}
-                onClick={() => toggleSection('tasks')}
-        >+</button>
-        <div className='sort-controls'>
-          <button className={`sort-button ${sortType === 'date' ? 'active' : ''}`}
-                  onClick={() => toggleSortOrder('date')}
+    <TaskContext.Provider value={{
+      tasks,
+      sortType,
+      sortOrder,
+      openSection,
+      currentTime,
+      activeTasks,
+      completedTasks,
+      toggleSection,
+      addTask,
+      deleteTask,
+      completeTask,
+      sortTask,
+      toggleSortOrder,
+    }}>
+      <div className="app">
+        <div className="task-container">
+          <h1>Task List with Priority</h1>
+          <button
+            className={`close-button ${openSection.taskList ? "open" : ""}`}
+            onClick={() => toggleSection("taskList")}
           >
-            By Date {sortType === 'date' && (sortOrder === 'asc' ? '\u2191' : '\u2193')}
+            +
           </button>
-          <button className={`sort-button ${sortType === 'priority' ? 'active' : ''}`}
-                  onClick={() => toggleSortOrder('priority')}
-          >
-            By Priority {sortType === 'priority' && (sortOrder === 'asc' ? '\u2191' : '\u2193')}
-          </button>
+          {openSection.taskList && <TaskForm addTask={addTask} />}
         </div>
-        {openSection.tasks && <TaskList activeTasks={activeTasks}
-                                        deleteTask={deleteTask}
-                                        completeTask={completeTask}
-                                        currentTime={currentTime}
-        />}
+        <div className="task-container">
+          <h2>Tasks</h2>
+          <button
+            className={`close-button ${openSection.tasks ? "open" : ""}`}
+            onClick={() => toggleSection("tasks")}
+          >
+            +
+          </button>
+          <div className="sort-controls">
+            <button
+              className={`sort-button ${sortType === "date" ? "active" : ""}`}
+              onClick={() => toggleSortOrder("date")}
+            >
+              By Date {sortType === "date" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+            </button>
+            <button
+              className={`sort-button ${sortType === "priority" ? "active" : ""}`}
+              onClick={() => toggleSortOrder("priority")}
+            >
+              By Priority {sortType === "priority" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+            </button>
+          </div>
+          {openSection.tasks && (
+            <TaskList />
+          )}
+        </div>
+        <div className="completed-task-container">
+          <h2>Completed Task</h2>
+          <button
+            className={`close-button ${openSection.completedTasks ? "open" : ""}`}
+            onClick={() => toggleSection("completedTasks")}
+          >
+            +
+          </button>
+          {openSection.completedTasks && (
+            <CompletedTaskList deleteTask={deleteTask} completedTasks={completedTasks} />
+          )}
+        </div>
+        <Footer />
       </div>
-      <div className="completed-task-container">
-        <h2>Completed Tasks</h2>
-        <button className={`close-button ${openSection.completedTasks ? "open" : ""}`}
-                onClick={() => toggleSection('completedTasks')}
-        >+</button>
-        {openSection.completedTasks && <CompletedTaskList completedTasks={completedTasks}
-                                                          deleteTask={deleteTask}  
-        />}
+    </TaskContext.Provider>
+  );
+}
+
+function TaskForm() {
+  const { addTask } = useContext(TaskContext);
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState("Low");
+  const [deadline, setDeadline] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (title.trim() && deadline) {
+      addTask({ title, priority, deadline });
+      setTitle("");
+      setPriority("Low");
+      setDeadline("");
+    }
+  }
+
+  return (
+    <form action="" className="task-form" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={title}
+        placeholder="Task title"
+        required
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+      <input
+        type="datetime-local"
+        required
+        value={deadline}
+        onChange={(e) => setDeadline(e.target.value)}
+      />
+      <button type="submit">Add task</button>
+    </form>
+  );
+}
+
+function TaskList() {
+  const { activeTasks, deleteTask, completeTask, currentTime } = useContext(TaskContext);
+  return (
+    <ul className="task-list">
+      {activeTasks.map((task) => (
+        <TaskItem
+          completeTask={completeTask}
+          deleteTask={deleteTask}
+          task={task}
+          key={task.id}
+          isOverdue={new Date(task.deadline) < currentTime}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function CompletedTaskList() {
+  const { completedTasks } = useContext(TaskContext);
+  return (
+    <ul className="completed-task-list">
+      {completedTasks.map((task) => (
+        <TaskItem key={task.id} task={task} />
+      ))}
+    </ul>
+  );
+}
+
+function TaskItem({task}) {
+  const { deleteTask, completeTask, isOverdue } = useContext(TaskContext);
+  const { title, priority, deadline, id, completed } = task;
+
+  return (
+    <li className={`task-item ${priority.toLowerCase()} ${isOverdue ? "overdue" : ""}`}>
+      <div className="task-info">
+        <div>
+          {title} <strong>{priority}</strong>
+        </div>
+        <div className="task-deadline">Due: {new Date(deadline).toLocaleString()}</div>
       </div>
-      <Footer />
-    </div>
-  )
+      <div className="task-buttons">
+        {!completed && (
+          <button className="complete-button" onClick={() => completeTask(id)}>
+            Complete
+          </button>
+        )}
+        <button className="delete-button" onClick={() => deleteTask(id)}>
+          Delete
+        </button>
+      </div>
+    </li>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <p>
+        Technologies and React concepts used: React, JSX, props, useEffect, useState, component
+        composition, conditional rendering, array methods (map, filter), event handling.
+      </p>
+    </footer>
+  );
 }
 
 export default App;
+
+
