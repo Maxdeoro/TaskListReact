@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import '../index.css';
+import { TaskContext } from '../context/taskContext';
 
-export function TaskForm({addTask}) {
+export function TaskForm() {
+
+    const {addTask} = useContext(TaskContext);
 
     const [title,setTitle] = useState('');
     const [priority, setPriority] = useState('Low');
     const [deadline, setDeadline] = useState('');
-    // const [tasks, setTasks] = useState([]);
-
 
     function handleSubmit(e) {
         e.preventDefault();

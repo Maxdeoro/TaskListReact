@@ -1,6 +1,10 @@
+import { useContext } from 'react';
 import '../index.css';
+import { TaskContext } from '../context/taskContext';
 
-export function CompletedTaskItem({task,deleteTask}) {
+export function CompletedTaskItem({task}) {
+
+    const {deleteTask} = useContext(TaskContext);
 
     const {title,priority,deadline,id} = task;
 

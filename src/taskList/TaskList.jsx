@@ -1,9 +1,11 @@
+import { useContext } from 'react';
 import '../index.css';
 import { TaskItem } from '../taskItem/TaskItem';
+import { TaskContext } from '../context/taskContext';
 
-export function TaskList({activeTasks,deleteTask,completeTask,currentTime}) {
+export function TaskList() {
 
-    // console.log(activeTasks);
+    const {activeTasks,deleteTask,completeTask,currentTime} = useContext(TaskContext)
 
     return <ul className='task-list'>
         {activeTasks.map((task) => <TaskItem key={task.id} task={task}

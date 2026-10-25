@@ -1,10 +1,10 @@
+import { useContext } from 'react';
 import '../index.css';
+import { TaskContext } from '../context/taskContext';
 
-export function TaskItem({task,deleteTask,completeTask,isOverdue}) {
-
+export function TaskItem({task}) {
+    const {deleteTask,completeTask,isOverdue} = useContext(TaskContext);
     const {title,priority,deadline,id} = task;
-
-    // console.log(task);
 
     return (
         <li className={`task-item ${priority.toLowerCase()} ${isOverdue ? "overdue" : ""}`}>
