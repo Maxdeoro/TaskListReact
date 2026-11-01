@@ -1,11 +1,11 @@
-// import { CompletedTaskItem } from '../completedTaskItem/CompletedTaskItem';
+import { CompletedTaskItem } from '../completedTaskItem/CompletedTaskItem';
 import '../index.css';
-import { TaskContext } from '../context/taskContext';
 import { useContext } from 'react';
+import { useTask } from '../TaskProvider';
 
 export function CompletedTaskList() {
 
-    const {completedTasks} = useContext(TaskContext);
+    const {completedTasks} = useTask();
 
     return <ul className='completed-task-list'>
         {completedTasks.map((task) => (

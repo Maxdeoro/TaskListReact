@@ -1,10 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { CompletedTaskList } from './completedTaskList/CompletedTaskList';
 import { Footer } from './footer/Footer';
 import './index.css';
 import { TaskForm } from './taskForm/TaskForm';
 import { TaskList } from './taskList/TaskList';
-import { TaskContext } from './context/taskContext';
+import { useTask } from './TaskProvider';
 
 function App() {
   const {
@@ -21,7 +21,7 @@ function App() {
       completeTask,
       sortTask,
       toggleSortOrder,
-  } = useContext(TaskContext);
+  } = useTask();
 
   return (
       <div className="app">

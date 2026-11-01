@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
 import '../index.css';
-import { TaskContext } from '../context/taskContext';
+import { useTask } from '../TaskProvider';
 
 export function TaskForm() {
 
-    const {addTask} = useContext(TaskContext);
+    const {addTask} = useTask();
 
     const [title,setTitle] = useState('');
     const [priority, setPriority] = useState('Low');
